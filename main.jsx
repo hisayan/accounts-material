@@ -1,5 +1,8 @@
 import React from 'react';
-import { Accounts, STATES } from 'meteor/std:accounts-ui';
+import { Accounts, STATES } from 'meteor/hisayan:accounts-ui';
+
+import RaisedButton from 'material-ui/RaisedButton';
+import { Link } from 'react-router';
 
 /**
  * Form.propTypes = {
@@ -11,7 +14,7 @@ import { Accounts, STATES } from 'meteor/std:accounts-ui';
  */
 class Form extends Accounts.ui.Form {
   render() {
-    const { fields, buttons, error, message, ready } = this.props;
+    const { fields, buttons, error, message, ready, oauthServices } = this.props;
     return (
       <form className={[
         "ui form",
@@ -44,6 +47,8 @@ class Form extends Accounts.ui.Form {
         { buttons['switchToSignOut'] ? (
           <Button {...buttons['switchToSignOut']} type="button" />
         ): null }
+        <Accounts.ui.PasswordOrService oauthServices={ oauthServices } />
+        <Accounts.ui.SocialButtons oauthServices={ oauthServices } />
         <Accounts.ui.FormMessage className="ui message" style={{display: 'block'}} {...message} />
       </form>
     );
@@ -54,22 +59,30 @@ class Buttons extends Accounts.ui.Buttons {}
 class Button extends Accounts.ui.Button {
   render() {
     const { label, type, disabled = false, onClick, className } = this.props;
+    console.log('Accounts.ui.Button', type);
     return type == 'link' ? (
-      <a style={{cursor: 'pointer'}} className={ className } onClick={ onClick }>{ label }</a>
+      <div>
+        hoge link
+        <a style={{cursor: 'pointer'}} className={ className } onClick={ onClick }>{ label }</a>
+      </div>
     ) : (
-      <button className={ [
-          'ui',
-          type === 'submit' ? 'btn waves-effect waves-light' : 'btn-flat',
-          disabled ? 'disabled' : '',
-          className
-        ].join(' ') } type={ type } disabled={ disabled }
-        onClick={ onClick }>
-        { label }
-        { type == 'submit' ? <i className="material-icons right">send</i> : null }
-      </button>
+      <div>
+        hoge button
+        <RaisedButton className={ [
+            'ui',
+            type === 'submit' ? 'btn waves-effect waves-light' : 'btn-flat',
+            disabled ? 'disabled' : '',
+            className
+          ].join(' ') } type={ type } disabled={ disabled }
+          onClick={ onClick }>
+          { label }
+          { type == 'submit' ? <i className="material-icons right">send</i> : null }
+        </RaisedButton>
+      </div>
     );
   }
 }
+
 class Fields extends Accounts.ui.Fields {
   render () {
     let { fields = {}, className = "field row" } = this.props;
@@ -82,6 +95,7 @@ class Fields extends Accounts.ui.Fields {
     );
   }
 }
+
 class Field extends Accounts.ui.Field {
   render() {
     const {
@@ -112,6 +126,21 @@ class Field extends Accounts.ui.Field {
   }
 }
 class FormMessage extends Accounts.ui.FormMessage {}
+
+class SocialButtons extends Accounts.ui.SocialButtons {
+  render() {
+    let { oauthServices = {}, className = "social-buttons" } = this.props;
+    console.log('SocialButtons', this.props);
+    return(
+      <div className={ className }>
+        {Object.keys(oauthServices).map((id, i) => {
+          return <Accounts.ui.Button {...oauthServices[id]} key={i} />;
+        })}
+      </div>
+    );
+  }
+}
+
 // Notice! Accounts.ui.LoginForm manages all state logic at the moment, so avoid
 // overwriting this one, but have a look at it and learn how it works. And pull
 // requests altering how that works are welcome.
@@ -123,7 +152,7 @@ Accounts.ui.Button = Button;
 Accounts.ui.Fields = Fields;
 Accounts.ui.Field = Field;
 Accounts.ui.FormMessage = FormMessage;
-
+Accounts.ui.SocialButtons = SocialButtons;
 // Export the themed version.
 export { Accounts, STATES };
 export default Accounts;
